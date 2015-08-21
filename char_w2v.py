@@ -25,4 +25,4 @@ print(model.most_similar(positive=['a']))
 print(model.most_similar(positive=['e']))
 print(model.most_similar(positive=['?']))
 
-model.save('models/word2vec_model.model')
+model.save('models/word2vec_char.model')
