@@ -22,7 +22,7 @@ import pickle
 '''
 
 
-with open('/home/ubuntu/.keras/datasets/tweets.pickle',mode='rb') as ff:
+with open('/home/erlenda/.keras/datasets/tweets.pickle',mode='rb') as ff:
     text=pickle.load(ff)
 print('corpus length:', len(text))
 text=text[:2000000].lower()
@@ -62,6 +62,14 @@ for i, sentence in enumerate(sentences):
         X[i, t, char_indices[char]] = 1
     y[i, char_indices[next_chars[i]]] = 1
     sentences[i]=None
+def get_minibdata(tt,maxlength,space,minibatch_number=0,minibatch_size=128):
+    sentences=[]
+    nc=[]
+    start=space*N_minib*minibatch_number
+    N_minibatches=
+    for iii in range(start,start+space*N_minib,space):
+
+
 
 
 layerdims=128
@@ -77,7 +85,7 @@ model.add(Dropout(0.2))
 model.add(Dense(layerdims, len(chars)))
 model.add(Activation('softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
+model.compile(loss='categorical_crossentropy', optimizer='adadelta')
 
 # helper function to sample an index from a probability array
 def sample(a, temperature=1.0):
@@ -87,6 +95,10 @@ def sample(a, temperature=1.0):
 
 import codecs
 # train the model, output generated text after each iteration
+
+
+for epoch in range(1,60)
+
 for iteration in range(1, 60):
     it1=iteration
     print()
