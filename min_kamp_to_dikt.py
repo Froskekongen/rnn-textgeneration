@@ -34,7 +34,7 @@ with open('./data/kaate_dikt.pickle',mode='rb') as ff:
 
 with open('./data/min_kamp_-_andre_bok.pickle',mode='rb') as ff:
     text2=pickle.load(ff)
-    text2='\n\n'.join(text['raw_text_list'])
+    text2='\n\n'.join(text2['raw_text_list'])
 
 
 
