@@ -31,7 +31,7 @@ from copy import copy
 
 with open('./data/kaate_dikt.pickle',mode='rb') as ff:
     text2=pickle.load(ff)
-    text2='\n'.join(text)
+    text2='\n'.join(text2)
 
 with open('./data/min_kamp_-_andre_bok.pickle',mode='rb') as ff:
     text=pickle.load(ff)
