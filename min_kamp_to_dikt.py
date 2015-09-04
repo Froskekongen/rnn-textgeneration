@@ -9,6 +9,7 @@ import random, sys
 import codecs
 import pickle
 from random import shuffle
+from copy import copy
 
 '''
     Example script to generate text from Nietzsche's writings.
@@ -29,12 +30,12 @@ from random import shuffle
 
 
 with open('./data/kaate_dikt.pickle',mode='rb') as ff:
-    text=pickle.load(ff)
-    text='\n'.join(text)
+    text2=pickle.load(ff)
+    text2='\n'.join(text)
 
 with open('./data/min_kamp_-_andre_bok.pickle',mode='rb') as ff:
-    text2=pickle.load(ff)
-    text2='\n\n'.join(text2['raw_text_list'])
+    text=pickle.load(ff)
+    text='\n\n'.join(text['raw_text_list'])
 
 
 
@@ -140,8 +141,8 @@ for iteration in range(1, 100):
     for i in index_shuf:
         list1_shuf.append(sentences[i])
         list2_shuf.append(next_chars[i])
-    sentences=list1_shuf.copy()
-    next_chars=list2_shuf.copy()
+    sentences=copy(list1_shuf)
+    next_chars=copy(list2_shuf)
 
 
     start_index = random.randint(0, len(text) - maxlen - 1)
