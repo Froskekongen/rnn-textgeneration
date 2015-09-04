@@ -61,9 +61,9 @@ for i in range(0, len(text) - maxlen, step):
 
 sentences2 = []
 next_chars2 = []
-for i in range(0, len(text) - maxlen, step):
-    sentences2.append(text[i : i + maxlen])
-    next_chars2.append(text[i + maxlen])
+for i in range(0, len(text2) - maxlen, step):
+    sentences2.append(text2[i : i + maxlen])
+    next_chars2.append(text2[i + maxlen])
 
 
 print('nb sequences:', len(sentences))
@@ -79,7 +79,7 @@ print(next_chars[50])
 
 
 
-layerdims=32
+layerdims=768
 # build the model: 2 stacked LSTM
 print('Build model...')
 model = Sequential()
@@ -109,7 +109,7 @@ for iteration in range(1, 100):
     print()
     print('-' * 50)
     print('Iteration', iteration)
-    if iteration>2:
+    if iteration==20:
         sentences=sentences2
 
     progbar = generic_utils.Progbar(len(sentences))
