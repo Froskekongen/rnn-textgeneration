@@ -3,6 +3,7 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Dropout
 from keras.layers.recurrent import LSTM
 from keras.datasets.data_utils import get_file
+from keras.utils import np_utils, generic_utils
 import numpy as np
 import random, sys
 import codecs
@@ -25,7 +26,7 @@ import pickle
 with open('/home/erlenda/.keras/datasets/tweets.pickle',mode='rb') as ff:
     text=pickle.load(ff)
 print('corpus length:', len(text))
-text=text[:2000000].lower()
+text=text[:200000].lower()
 
 chars = set(text)
 print(list(sorted(chars)))
@@ -54,7 +55,7 @@ print(next_chars[50])
 
 
 
-print('Vectorization...:',len(sentences),maxlen)
+print('Vectorization...')
 X = np.zeros((len(sentences), maxlen, len(chars)), dtype=np.bool)
 y = np.zeros((len(sentences), len(chars)), dtype=np.bool)
 for i, sentence in enumerate(sentences):
@@ -62,23 +63,13 @@ for i, sentence in enumerate(sentences):
         X[i, t, char_indices[char]] = 1
     y[i, char_indices[next_chars[i]]] = 1
     sentences[i]=None
-def get_minibdata(tt,maxlength,space,minibatch_number=0,minibatch_size=128):
-    sentences=[]
-    nc=[]
-    start=space*N_minib*minibatch_number
-    N_minibatches=
-    for iii in range(start,start+space*N_minib,space):
 
 
-
-
-layerdims=128
+layerdims=64
 # build the model: 2 stacked LSTM
 print('Build model...')
 model = Sequential()
 model.add(LSTM(len(chars), layerdims, return_sequences=True))
-model.add(Dropout(0.2))
-model.add(LSTM(layerdims, layerdims, return_sequences=True))
 model.add(Dropout(0.2))
 model.add(LSTM(layerdims, layerdims, return_sequences=False))
 model.add(Dropout(0.2))
@@ -97,13 +88,14 @@ import codecs
 # train the model, output generated text after each iteration
 
 
-for epoch in range(1,60)
+
 
 for iteration in range(1, 60):
     it1=iteration
     print()
     print('-' * 50)
     print('Iteration', iteration)
+
     model.fit(X, y, batch_size=128, nb_epoch=1)
 
     start_index = random.randint(0, len(text) - maxlen - 1)

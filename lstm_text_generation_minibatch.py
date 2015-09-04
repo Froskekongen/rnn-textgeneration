@@ -8,6 +8,7 @@ import numpy as np
 import random, sys
 import codecs
 import pickle
+from random import shuffle
 
 '''
     Example script to generate text from Nietzsche's writings.
@@ -23,10 +24,15 @@ import pickle
 '''
 
 
-with open('/home/erlenda/.keras/datasets/tweets.pickle',mode='rb') as ff:
+# with open('/home/erlenda/.keras/datasets/tweets.pickle',mode='rb') as ff:
+#     text=pickle.load(ff)
+
+
+with open('./data/kaate_dikt.pickle',mode='rb') as ff:
     text=pickle.load(ff)
+    text='\n'.join(text)
 print('corpus length:', len(text))
-text=text[:2000000].lower()
+text=text.lower()
 
 chars = set(text)
 print(list(sorted(chars)))
@@ -38,43 +44,35 @@ indices_char = dict((i, c) for i, c in enumerate(chars))
 # cut the text in semi-redundant sequences of maxlen characters
 maxlen = 25
 step = 3
-N_minib=int(  (len(text)-maxlen)/step  )
-minib_size=128
+sentences = []
+next_chars = []
+for i in range(0, len(text) - maxlen, step):
+    sentences.append(text[i : i + maxlen])
+    next_chars.append(text[i + maxlen])
+
+
+print('nb sequences:', len(sentences))
+print(sentences[0])
+print(next_chars[0])
+print('\n'*5)
+print(sentences[1])
+print(next_chars[1])
+print('\n'*5)
+print(sentences[50])
+print(next_chars[50])
 
 
 
+# print('Vectorization...')
+# X = np.zeros((128, maxlen, len(chars)), dtype=np.bool)
+# y = np.zeros((128, len(chars)), dtype=np.bool)
+# for i, sentence in enumerate(sentences):
+#     for t, char in enumerate(sentence):
+#         X[i, t, char_indices[char]] = 1
+#     y[i, char_indices[next_chars[i]]] = 1
 
-print('Vectorization...')
-X = np.zeros((minib_size, maxlen, len(chars)), dtype=np.bool)
-y = np.zeros((minib_size, len(chars)), dtype=np.bool)
-def get_minibdata(tt,maxlength,space,X,y,minibatch_number=0,minibatch_size=128):
-    sentences=[]
-    nc=[]
-    start=space*minibatch_number*minibatch_size
-    ending=0
-    N_minibatches=int( (len(tt)-maxlength)/space )
-    if minibatch_number>=N_minibatches:
-        return None,None
-    for iii in range(start,start+space*minibatch_size,space):
-        sentences.append(tt[iii:iii+maxlength])
-        nc.append(tt[iii+maxlength])
-        ending=iii+maxlength
-    # for iii in range(0,5*5,5):
-    #     print(sentences[iii])
-    #     print('Next char: ',nc[iii])
-    #     print('\n'*5)
-    # print(len(sentences),start,ending)
-    for i, sentence in enumerate(sentences):
-        for t, char in enumerate(sentence):
-            X[i, t, char_indices[char]] = 1
-        y[i, char_indices[nc[i]]] = 1
 
-get_minibdata(text,maxlen,step,X,y,minibatch_number=0,minibatch_size=minib_size)
-print(y[0])
-
-#sys.exit(0)
-
-layerdims=64
+layerdims=256
 # build the model: 2 stacked LSTM
 print('Build model...')
 model = Sequential()
@@ -85,7 +83,7 @@ model.add(Dropout(0.2))
 model.add(Dense(layerdims, len(chars)))
 model.add(Activation('softmax'))
 
-model.compile(loss='categorical_crossentropy', optimizer='adadelta')
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
 
 # helper function to sample an index from a probability array
 def sample(a, temperature=1.0):
@@ -96,19 +94,47 @@ def sample(a, temperature=1.0):
 import codecs
 # train the model, output generated text after each iteration
 
-nb_epoch=60
-for e in range(nb_epoch):
-    print('-'*40)
-    print('Epoch', e)
-    print('-'*40)
-    print("Training...")
-    # batch train with realtime data augmentation
-    progbar = generic_utils.Progbar(X.shape[0]*512)
-    for iii in range(512):
-        get_minibdata(text,maxlen,step,X,y,minibatch_number=iii,minibatch_size=minib_size)
 
-        loss = model.train_on_batch(X, y)
+
+
+for iteration in range(1, 60):
+    it1=iteration
+    print()
+    print('-' * 50)
+    print('Iteration', iteration)
+
+    progbar = generic_utils.Progbar(len(sentences))
+    start=0
+    batch_size=128
+    while 1:
+        loc_sentences=sentences[start:start+batch_size]
+        loc_next_chars=next_chars[start:start+batch_size]
+        start=start+batch_size
+        max_ss=len(loc_sentences)
+        if max_ss==0:
+            break
+        X = np.zeros((max_ss, maxlen, len(chars)), dtype=np.bool)
+        y = np.zeros((max_ss, len(chars)), dtype=np.bool)
+        for index in range(max_ss):
+            sentence=loc_sentences[index]
+            nc=loc_next_chars[index]
+            for t, char in enumerate(sentence):
+                X[index, t, char_indices[char]] = 1
+            y[index, char_indices[nc]] = 1
+
+        loss = model.train_on_batch(X,y)
         progbar.add(X.shape[0], values=[("train loss", loss)])
+        del X,y
+    list1_shuf = []
+    list2_shuf = []
+    index_shuf = list(range(len(sentences)))
+    shuffle(index_shuf)
+    for i in index_shuf:
+        list1_shuf.append(sentences[i])
+        list2_shuf.append(next_chars[i])
+    sentences=list1_shuf.copy()
+    next_chars=list2_shuf.copy()
+
 
     start_index = random.randint(0, len(text) - maxlen - 1)
 
@@ -136,6 +162,6 @@ for e in range(nb_epoch):
 
             sys.stdout.write(next_char)
             sys.stdout.flush()
-        with codecs.open('generated_'+str(e)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
+        with codecs.open('data/generated_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
             ff.write(generated)
         print()
