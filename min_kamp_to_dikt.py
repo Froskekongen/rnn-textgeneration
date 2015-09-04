@@ -24,17 +24,23 @@ from random import shuffle
 '''
 
 
+# with open('/home/erlenda/.keras/datasets/tweets.pickle',mode='rb') as ff:
+#     text=pickle.load(ff)
 
 
 with open('./data/kaate_dikt.pickle',mode='rb') as ff:
     text=pickle.load(ff)
     text='\n'.join(text)
 
+with open('./data/min_kamp_-_andre_bok.pickle',mode='rb') as ff:
+    text2=pickle.load(ff)
+    text2='\n\n'.join(text['raw_text_list'])
+
 
 
 print('corpus length:', len(text))
 text=text.lower()
-
+text2=text2.lower()
 
 chars = set(text+text2)
 print(list(sorted(chars)))
@@ -52,7 +58,11 @@ for i in range(0, len(text) - maxlen, step):
     sentences.append(text[i : i + maxlen])
     next_chars.append(text[i + maxlen])
 
-
+sentences2 = []
+next_chars2 = []
+for i in range(0, len(text) - maxlen, step):
+    sentences2.append(text[i : i + maxlen])
+    next_chars2.append(text[i + maxlen])
 
 
 print('nb sequences:', len(sentences))
@@ -66,14 +76,6 @@ print(sentences[50])
 print(next_chars[50])
 
 
-
-# print('Vectorization...')
-# X = np.zeros((128, maxlen, len(chars)), dtype=np.bool)
-# y = np.zeros((128, len(chars)), dtype=np.bool)
-# for i, sentence in enumerate(sentences):
-#     for t, char in enumerate(sentence):
-#         X[i, t, char_indices[char]] = 1
-#     y[i, char_indices[next_chars[i]]] = 1
 
 
 layerdims=32
@@ -101,11 +103,13 @@ import codecs
 
 
 
-for iteration in range(1, 60):
+for iteration in range(1, 100):
     it1=iteration
     print()
     print('-' * 50)
     print('Iteration', iteration)
+    if iteration>2:
+        sentences=sentences2
 
     progbar = generic_utils.Progbar(len(sentences))
     start=0
@@ -142,7 +146,7 @@ for iteration in range(1, 60):
 
     start_index = random.randint(0, len(text) - maxlen - 1)
 
-    for diversity in [0.2, 0.5, 1.0, 1.2]:
+    for diversity in [0.2, 0.5, 0.7, 1.0, 1.2]:
         print()
         print('----- diversity:', diversity)
 
@@ -166,7 +170,7 @@ for iteration in range(1, 60):
 
             sys.stdout.write(next_char)
             sys.stdout.flush()
-        with codecs.open('data/generated_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
+        with codecs.open('data/generated_mkdikt_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
             ff.write(generated)
         print()
-model.save_weights('models/mkmodel.hdf5')
+model.save_weights('models/minkamp_dikt.hdf5')
