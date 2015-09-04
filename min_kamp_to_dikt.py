@@ -104,12 +104,12 @@ import codecs
 
 
 
-for iteration in range(1, 110):
+for iteration in range(1, 140):
     it1=iteration
     print()
     print('-' * 50)
     print('Iteration', iteration)
-    if iteration==30:
+    if iteration==50:
         sentences=sentences2
         next_chars=next_chars2
 
