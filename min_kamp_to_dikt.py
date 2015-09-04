@@ -135,6 +135,7 @@ for iteration in range(1, 110):
         loss = model.train_on_batch(X,y)
         progbar.add(X.shape[0], values=[("train loss", loss)])
         del X,y
+    model.save_weights('models/minkamp_dikt_'+str(e)+'.hdf5')
     list1_shuf = []
     list2_shuf = []
     index_shuf = list(range(len(sentences)))
@@ -175,4 +176,3 @@ for iteration in range(1, 110):
         with codecs.open('data/generated_mkdikt_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
             ff.write(generated)
         print()
-model.save_weights('models/minkamp_dikt.hdf5')
