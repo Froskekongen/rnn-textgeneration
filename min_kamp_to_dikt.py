@@ -104,13 +104,14 @@ import codecs
 
 
 
-for iteration in range(1, 100):
+for iteration in range(1, 110):
     it1=iteration
     print()
     print('-' * 50)
     print('Iteration', iteration)
-    if iteration==20:
+    if iteration==30:
         sentences=sentences2
+        next_chars=next_chars2
 
     progbar = generic_utils.Progbar(len(sentences))
     start=0
@@ -157,7 +158,7 @@ for iteration in range(1, 100):
         print('----- Generating with seed: "' + sentence + '"')
         sys.stdout.write(generated)
 
-        for iteration in range(1000):
+        for iteration in range(2000):
             x = np.zeros((1, maxlen, len(chars)))
             for t, char in enumerate(sentence):
                 x[0, t, char_indices[char]] = 1.
