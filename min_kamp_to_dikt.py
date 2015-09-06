@@ -51,19 +51,32 @@ char_indices = dict((c, i) for i, c in enumerate(chars))
 indices_char = dict((i, c) for i, c in enumerate(chars))
 
 # cut the text in semi-redundant sequences of maxlen characters
-maxlen = 25
+maxlen = 40
 step = 3
-sentences = []
-next_chars = []
-for i in range(0, len(text) - maxlen, step):
-    sentences.append(text[i : i + maxlen])
-    next_chars.append(text[i + maxlen])
+sentenceCont=[]
+nc_cont=[]
+for jjj in range(step):
+    sentences=[]
+    next_chars=[]
+    for i in range(jjj, len(text) - maxlen, step):
+        sentences.append(text[i : i + maxlen])
+        next_chars.append(text[i + maxlen])
+    sentenceCont.append(sentences)
+    nc_cont.append(next_chars)
 
-sentences2 = []
-next_chars2 = []
-for i in range(0, len(text2) - maxlen, step):
-    sentences2.append(text2[i : i + maxlen])
-    next_chars2.append(text2[i + maxlen])
+
+
+
+sentenceCont2=[]
+nc_cont2=[]
+for jjj in range(step):
+    sentences=[]
+    next_chars=[]
+    for i in range(jjj, len(text2) - maxlen, step):
+        sentences.append(text2[i : i + maxlen])
+        next_chars.append(text2[i + maxlen])
+    sentenceCont2.append(sentences)
+    nc_cont2.append(next_chars)
 
 
 print('nb sequences:', len(sentences))
@@ -79,15 +92,22 @@ print(next_chars[50])
 
 
 
-layerdims=768
+layerdims=768*2
+layerdims2=int(layerdims/5)
 # build the model: 2 stacked LSTM
 print('Build model...')
 model = Sequential()
+## LSTM layers
 model.add(LSTM(len(chars), layerdims, return_sequences=True))
-model.add(Dropout(0.2))
+model.add(Dropout(0.15))
 model.add(LSTM(layerdims, layerdims, return_sequences=False))
-model.add(Dropout(0.2))
-model.add(Dense(layerdims, len(chars)))
+model.add(Dropout(0.15))
+
+model.add(Dense(layerdims, layerdims2))
+mode.add(Activation('relu'))
+model.add(Dropout(0.1))
+
+model.add(Dense(layerdims2, len(chars)))
 model.add(Activation('softmax'))
 
 model.compile(loss='categorical_crossentropy', optimizer='rmsprop')
@@ -110,8 +130,10 @@ for iteration in range(1, 140):
     print('-' * 50)
     print('Iteration', iteration)
     if iteration==50:
-        sentences=sentences2
-        next_chars=next_chars2
+        sentenceCont=sentenceCont2
+        nc_cont=nc_cont2
+    sentences=sentenceCont[iteration%3]
+    next_chars=nc_cont[iteration%3]
 
     progbar = generic_utils.Progbar(len(sentences))
     start=0
@@ -135,7 +157,7 @@ for iteration in range(1, 140):
         loss = model.train_on_batch(X,y)
         progbar.add(X.shape[0], values=[("train loss", loss)])
         del X,y
-    model.save_weights('models/minkamp_dikt_'+str(it1)+'.hdf5')
+    model.save_weights('models/minkamp_dikt2_'+str(it1)+'.hdf5')
     list1_shuf = []
     list2_shuf = []
     index_shuf = list(range(len(sentences)))
@@ -173,6 +195,6 @@ for iteration in range(1, 140):
 
             sys.stdout.write(next_char)
             sys.stdout.flush()
-        with codecs.open('data/generated_mkdikt_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
+        with codecs.open('data/generated_mkdikt2_'+str(it1)+'_'+str(diversity)+'.txt',mode='w',encoding='utf-8') as ff:
             ff.write(generated)
         print()
