@@ -104,7 +104,7 @@ model.add(LSTM(layerdims, layerdims, return_sequences=False))
 model.add(Dropout(0.15))
 
 model.add(Dense(layerdims, layerdims2))
-mode.add(Activation('relu'))
+model.add(Activation('relu'))
 model.add(Dropout(0.1))
 
 model.add(Dense(layerdims2, len(chars)))
