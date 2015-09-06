@@ -11,6 +11,10 @@ import pickle
 from random import shuffle
 from copy import copy
 
+import re
+
+mult_newline=re.compile('[\n]{2,}',flags=re.UNICODE|re.MULTILINE)
+
 '''
     Example script to generate text from Nietzsche's writings.
 
@@ -32,10 +36,27 @@ from copy import copy
 with open('./data/kaate_dikt.pickle',mode='rb') as ff:
     text2=pickle.load(ff)
     text2='\n'.join(text2)
+    text2=text2.replace(' .','.')
+    text2=text2.replace(' ,',',')
+    text2=text2.replace(' :',':')
+    text2=text2.replace(' ?','?')
+    text2=text2.replace(' !','!')
+    text2=text2.replace(' ;',';')
+    text2=text2.replace('\r','')
+    text2=mult_newline.sub('\n\n',text2)
+
 
 with open('./data/min_kamp_-_andre_bok.pickle',mode='rb') as ff:
     text=pickle.load(ff)
     text='\n\n'.join(text['raw_text_list'])
+    text=text.replace(' .','.')
+    text=text.replace(' ,',',')
+    text=text.replace(' :',':')
+    text=text.replace(' ?','?')
+    text=text.replace(' !','!')
+    text=text.replace(' ;',';')
+    text=text.replace('\r','')
+    text=mult_newline.sub('\n\n',text)
 
 
 
