@@ -8,18 +8,21 @@ import sys
 import bz2
 import os.path
 from pprint import pprint
+import nltk
 
 import gensim.corpora
 
 import re
 
+sent_detector = nltk.data.load('/home/erlenda/nltk_data/tokenizers/punkt/norwegian.pickle')
+
 nl_re=re.compile('([\n]){2,}',flags=re.MULTILINE|re.UNICODE)
 fnutt_replace=re.compile('([\']){2,}',flags=re.MULTILINE|re.UNICODE)
 
-re_space_insert=re.compile('([\?\.\,\:\;\!\'="_$%&@#\(\)\[\]\{\}\*|])',flags=re.MULTILINE|re.UNICODE)
+re_space_insert=re.compile('([\?\.\,\:\;\!\'="_$%&@#\(\)\[\]\{\}\*|«»])',flags=re.MULTILINE|re.UNICODE)
 re_multispace=re.compile('[ ]+',flags=re.MULTILINE|re.UNICODE)
 
-def text_preproc_for_tok(txt):
+def preproc_for_tok(txt):
     txt=re_space_insert.sub(r' \1 ',txt)
     txt=re_multispace.sub(' ',txt)
     return txt
@@ -72,14 +75,42 @@ if __name__ == '__main__':
         with open('./data/wikipages/wiki_pages_raw_processed.pickle',mode='rb') as ff:
             texts=pickle.load(ff)
 
-    print(text_preproc_for_tok(texts[1][0]))
+    #print(text_preproc_for_tok(texts[1][0]))
+
+
 
     toklist=[]
+    acc_sents=[]
+    iii=0
+    no_starts=['==','*','(','Kategori:','ISBN']
+
+    def txt_startswith(txt,nostarts):
+        low_st=txt[0].lower()
+        for tt in nostarts:
+            a=txt.startswith(tt)
+            if a:
+                return a
+        if txt.startswith(low_st):
+            return True
+        if (txt.find('Kategori:') !=-1) or (txt.find('==') !=-1) or (txt.find('\n') !=-1):
+            return True
+        return False
+
 
     for text, title, pageid in texts:
-        text=text_preproc_for_tok(text).lower()
-        toks=text.split()
-        toklist.extend(toks)
+        sents=sent_detector.tokenize(text)
+        for sent in sents:
+            if not ( txt_startswith(sent,no_starts) ):
+                acc_sent=preproc_for_tok(sent)
 
-    with open('./data/wikipages/toklist.pickle',mode='wb') as ff:
-        pickle.dump(toklist,ff)
+                acc_sents.append(acc_sent)
+            iii+=1
+            if iii%5000==0:
+                print(acc_sent)
+                print('')
+        # text=text_preproc_for_tok(text).lower()
+        # toks=text.split()
+        # toklist.extend(toks)
+
+    with open('./data/wikipages/sentlist.pickle',mode='wb') as ff:
+        pickle.dump(acc_sents,ff)
